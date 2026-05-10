@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Safety Watch — İş Güvenliği İhlal Tespit Sistemi</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0e1a;
+      --surface: #111827;
+      --surface2: #1a2235;
+      --border: #1e2d45;
+      --accent: #f97316;
+      --accent2: #fb923c;
+      --blue: #3b82f6;
+      --green: #22c55e;
+      --red: #ef4444;
+      --yellow: #eab308;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --subtle: #475569;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 64px;
+      background: rgba(10, 14, 26, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.3px;
+    }
+
+    .nav-logo svg { color: var(--accent); flex-shrink: 0; }
+
+    .nav-logo span { color: var(--accent); }
+
+    .btn-console {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.875rem;
+      padding: 9px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 0 0 0 rgba(249,115,22,0);
+    }
+
+    .btn-console:hover {
+      background: var(--accent2);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(249,115,22,0.4);
+    }
+
+    .btn-console:active { transform: translateY(0); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 6rem 1.5rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(249,115,22,0.12), transparent),
+        radial-gradient(ellipse 50% 60% at 80% 80%, rgba(59,130,246,0.07), transparent);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(249,115,22,0.12);
+      border: 1px solid rgba(249,115,22,0.3);
+      color: var(--accent2);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 5px 14px;
+      border-radius: 100px;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.5px;
+    }
+
+    .pulse-dot {
+      width: 7px; height: 7px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    .hero h1 {
+      font-size: clamp(2.4rem, 6vw, 4.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      max-width: 780px;
+      margin-bottom: 1.25rem;
+    }
+
+    .hero h1 .highlight {
+      background: linear-gradient(135deg, var(--accent), #facc15);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: clamp(1rem, 2.2vw, 1.2rem);
+      color: var(--muted);
+      max-width: 600px;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 4rem;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 13px 28px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 0 0 0 rgba(249,115,22,0);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent2);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 28px rgba(249,115,22,0.45);
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 13px 28px;
+      border-radius: 10px;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--subtle);
+      background: var(--surface);
+    }
+
+    /* STATS ROW */
+    .hero-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: center;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, var(--text), var(--muted));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-value.orange {
+      background: linear-gradient(135deg, var(--accent), #facc15);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--subtle);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-top: 2px;
+    }
+
+    /* ── SECTIONS ── */
+    section { padding: 5rem 1.5rem; }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -0.8px;
+      margin-bottom: 1rem;
+      line-height: 1.15;
+    }
+
+    .section-desc {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 560px;
+      margin-bottom: 3rem;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.75rem;
+      position: relative;
+      transition: border-color 0.25s, transform 0.25s;
+    }
+
+    .step:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+    }
+
+    .step-num {
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .step-icon {
+      width: 44px; height: 44px;
+      background: rgba(249,115,22,0.12);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+    }
+
+    .step h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .step p { font-size: 0.875rem; color: var(--muted); }
+
+    /* ── FEATURES GRID ── */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+    }
+
+    .feature-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.35);
+    }
+
+    .feature-card.wide {
+      grid-column: span 2;
+    }
+
+    @media (max-width: 720px) {
+      .feature-card.wide { grid-column: span 1; }
+    }
+
+    .feature-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .icon-orange { background: rgba(249,115,22,0.15); }
+    .icon-blue   { background: rgba(59,130,246,0.15); }
+    .icon-green  { background: rgba(34,197,94,0.15); }
+    .icon-purple { background: rgba(168,85,247,0.15); }
+    .icon-red    { background: rgba(239,68,68,0.15); }
+    .icon-yellow { background: rgba(234,179,8,0.15); }
+
+    .feature-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-card p {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 1rem;
+    }
+
+    .tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 100px;
+      background: rgba(255,255,255,0.07);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    /* ── DETECTION BADGES ── */
+    .detection-demo {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 1.25rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid;
+    }
+
+    .badge-red    { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: #fca5a5; }
+    .badge-yellow { background: rgba(234,179,8,0.1); border-color: rgba(234,179,8,0.3); color: #fde047; }
+    .badge-blue   { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); color: #93c5fd; }
+    .badge-green  { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.3); color: #86efac; }
+
+    /* ── ARCHITECTURE ── */
+    .arch-flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+
+    .arch-node {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 20px;
+      text-align: center;
+      min-width: 130px;
+    }
+
+    .arch-node .node-icon { font-size: 1.5rem; margin-bottom: 4px; }
+    .arch-node .node-label { font-size: 0.78rem; font-weight: 600; color: var(--muted); }
+    .arch-node .node-title { font-size: 0.88rem; font-weight: 700; }
+
+    .arch-arrow {
+      color: var(--subtle);
+      font-size: 1.2rem;
+      padding: 0 8px;
+      flex-shrink: 0;
+    }
+
+    /* ── TECH STACK ── */
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+    }
+
+    .tech-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1rem;
+      text-align: center;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .tech-item:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+    }
+
+    .tech-item .tech-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .tech-item .tech-name { font-size: 0.875rem; font-weight: 700; }
+    .tech-item .tech-role { font-size: 0.72rem; color: var(--subtle); margin-top: 2px; }
+
+    /* ── STATS SECTION ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.75rem;
+      text-align: center;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .stat-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+    }
+
+    .stat-card .s-val {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      color: var(--accent);
+    }
+
+    .stat-card .s-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* ── CTA ── */
+    .cta-section {
+      background: linear-gradient(135deg, rgba(249,115,22,0.08), rgba(59,130,246,0.06));
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+      padding: 5rem 1.5rem;
+    }
+
+    .cta-section h2 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -0.8px;
+      margin-bottom: 1rem;
+    }
+
+    .cta-section p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      margin-bottom: 2rem;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      color: var(--subtle);
+      font-size: 0.85rem;
+    }
+
+    footer strong { color: var(--muted); }
+
+    /* ── DIVIDER ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0;
+    }
+
+    /* ── SCROLL ANIMATIONS ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── GRID BG ── */
+    .grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black, transparent);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <path d="m9 12 2 2 4-4"/>
+      </svg>
+      <span>WorkSafe</span> AI
+    </div>
+    <a href="https://work-safety-backend.vercel.app/" target="_blank" rel="noopener" class="btn-console">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <rect width="18" height="18" x="3" y="3" rx="2"/>
+        <path d="m9 9 6 6"/><path d="m15 9-6 6"/>
+      </svg>
+      Go to Console
+    </a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="grid-bg"></div>
+
+    <div class="hero-badge">
+      <div class="pulse-dot"></div>
+      Yapay Zeka ile Anlık Güvenlik Takibi
+    </div>
+
+    <h1>
+      İş Sahalarında<br/>
+      <span class="highlight">Sıfır İhlal</span> Hedefi
+    </h1>
+    <p>
+      YOLOv11 tabanlı gerçek zamanlı tespit sistemi. Baret, yelek ve düşme ihlallerini anında algıla, ekibi bilgilendir, sahayı koru.
+    </p>
+
+    <div class="hero-actions">
+      <a href="https://work-safety-backend.vercel.app/" target="_blank" rel="noopener" class="btn-primary">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+        </svg>
+        Konsola Git
+      </a>
+      <a href="#features" class="btn-ghost">
+        Özellikleri İncele
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m6 9 6 6 6-6"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-value orange">93</div>
+        <div class="stat-label">Otomatik Test</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">35+</div>
+        <div class="stat-label">API Endpoint</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">3</div>
+        <div class="stat-label">Platform</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">~14K</div>
+        <div class="stat-label">Satır Kod</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- HOW IT WORKS -->
+  <section>
+    <div class="container">
+      <div class="section-label">Nasıl Çalışır?</div>
+      <h2 class="section-title">Tespitten Bildiriye<br/>Saniyeler İçinde</h2>
+      <p class="section-desc">
+        Kamera akışından anlık ihlal tespiti, veritabanı kaydı ve çoklu bildirim kanallarıyla tam otomasyon.
+      </p>
+
+      <div class="steps reveal">
+        <div class="step">
+          <div class="step-num">Adım 01</div>
+          <div class="step-icon">📷</div>
+          <h3>Kamera Akışı</h3>
+          <p>RTSP, HTTP, MJPEG veya lokal kamera akışları sürekli okunur ve frame'ler ML pipeline'a beslenir.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">Adım 02</div>
+          <div class="step-icon">🤖</div>
+          <h3>YOLOv8 Analizi</h3>
+          <p>Her frame'de baret, yelek ve düşme tespiti anlık yapılır. Güven skoru eşiği aşıldığında ihlal kuyruğuna eklenir.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">Adım 03</div>
+          <div class="step-icon">💾</div>
+          <h3>Kayıt & Snapshot</h3>
+          <p>İhlal anının görüntüsü alınır, PostgreSQL'e kaydedilir ve şirket verisiyle ilişkilendirilir.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">Adım 04</div>
+          <div class="step-icon">🔔</div>
+          <h3>Anlık Bildirim</h3>
+          <p>WebSocket üzerinden web paneline, FCM ile mobil uygulamaya eş zamanlı push bildirim gönderilir.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="container">
+      <div class="section-label">Özellikler</div>
+      <h2 class="section-title">Uçtan Uca<br/>Güvenlik Platformu</h2>
+      <p class="section-desc">
+        Backend'den mobil uygulamaya, ML pipeline'dan raporlamaya kadar eksiksiz bir iş güvenliği ekosistemi.
+      </p>
+
+      <div class="features">
+        <!-- Realtime -->
+        <div class="feature-card reveal">
+          <div class="feature-icon icon-red">🎯</div>
+          <h3>Gerçek Zamanlı İhlal Tespiti</h3>
+          <p>YOLOv8/v11 modelleri ile her frame analiz edilir. Kritik ihlaller 30 saniye, düşük öncelikli ihlaller 30 dakika aralıklarla takip edilir — veritabanı şişmesi önlenir.</p>
+          <div class="detection-demo">
+            <span class="badge badge-red">🪖 Baret Yok</span>
+            <span class="badge badge-yellow">🦺 Yelek Yok</span>
+            <span class="badge badge-blue">⚠️ Düşme</span>
+            <span class="badge badge-green">✓ Güvende</span>
+          </div>
+        </div>
+
+        <!-- Multi-tenant -->
+        <div class="feature-card reveal">
+          <div class="feature-icon icon-blue">🏢</div>
+          <h3>Multi-Tenant Mimari</h3>
+          <p>Tek deployment ile birden fazla şirketi destekler. Her şirket kendi kamera, kullanıcı ve ihlal verilerine ayrı erişir. Admin panelinden şirketler arası geçiş yapılabilir.</p>
+          <div class="tag-list">
+            <span class="tag">Şirket İzolasyonu</span>
+            <span class="tag">Admin Panel</span>
+            <span class="tag">Rol Tabanlı Erişim</span>
+          </div>
+        </div>
+
+        <!-- Web Dashboard -->
+        <div class="feature-card reveal">
+          <div class="feature-icon icon-purple">🖥️</div>
+          <h3>Web Yönetim Paneli</h3>
+          <p>React 19 + Material-UI ile geliştirilmiş tam özellikli dashboard. Canlı kamera görüntüsü, ihlal tablosu, KPI kartları ve 7 günlük grafik tek ekranda.</p>
+          <div class="tag-list">
+            <span class="tag">React 19</span>
+            <span class="tag">WebSocket</span>
+            <span class="tag">Recharts</span>
+            <span class="tag">Real-time Toast</span>
+          </div>
+        </div>
+
+        <!-- Mobile -->
+        <div class="feature-card reveal">
+          <div class="feature-icon icon-green">📱</div>
+          <h3>Flutter Mobil Uygulama</h3>
+          <p>iOS ve Android için cross-platform saha uygulaması. FCM push bildirimleri, kamera yönetimi, ihlal onaylama ve gelişmiş raporlama özellikleriyle donatılmış.</p>
+          <div class="tag-list">
+            <span class="tag">Flutter 3.9</span>
+            <span class="tag">FCM Push</span>
+            <span class="tag">WebView Stream</span>
+            <span class="tag">Offline Cache</span>
+          </div>
+        </div>
+
+        <!-- Reporting -->
+        <div class="feature-card reveal">
+          <div class="feature-icon icon-yellow">📊</div>
+          <h3>Gelişmiş Raporlama</h3>
+          <p>PDF, CSV ve Excel formatlarında manuel ve otomatik raporlar. APScheduler ile her gün 17:30'da, her Cuma ve ay sonunda e-posta ile otomatik rapor gönderimi.</p>
+          <div class="tag-list">
+            <span class="tag">PDF Export</span>
+            <span class="tag">Excel / CSV</span>
+            <span class="tag">Zamanlanmış</span>
+            <span class="tag">SMTP E-posta</span>
+          </div>
+        </div>
+
+        <!-- API -->
+        <div class="feature-card reveal">
+          <div class="feature-icon icon-orange">⚡</div>
+          <h3>Yüksek Performanslı API</h3>
+          <p>FastAPI async mimarisi ile 35+ endpoint. JWT kimlik doğrulama, WebSocket ihlal akışı, SQLAlchemy async ORM ve Docker ile konteynerleştirilmiş dağıtım.</p>
+          <div class="tag-list">
+            <span class="tag">FastAPI</span>
+            <span class="tag">JWT Auth</span>
+            <span class="tag">WebSocket</span>
+            <span class="tag">Docker</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- TECH STACK -->
+  <section>
+    <div class="container">
+      <div class="section-label">Teknoloji Stack</div>
+      <h2 class="section-title">Modern Altyapı,<br/>Güvenilir Teknolojiler</h2>
+      <p class="section-desc">
+        Her katman için sektörün en olgun açık kaynak araçları seçildi.
+      </p>
+
+      <div class="tech-grid reveal">
+        <div class="tech-item">
+          <div class="tech-icon">🐍</div>
+          <div class="tech-name">FastAPI</div>
+          <div class="tech-role">Backend API</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">⚛️</div>
+          <div class="tech-name">React 19</div>
+          <div class="tech-role">Web Frontend</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">💙</div>
+          <div class="tech-name">Flutter</div>
+          <div class="tech-role">Mobil Uygulama</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">🤖</div>
+          <div class="tech-name">YOLOv8/v11</div>
+          <div class="tech-role">ML Motoru</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">🐘</div>
+          <div class="tech-name">PostgreSQL</div>
+          <div class="tech-role">Veritabanı</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">🔥</div>
+          <div class="tech-name">Firebase</div>
+          <div class="tech-role">Push Bildirim</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">🐳</div>
+          <div class="tech-name">Docker</div>
+          <div class="tech-role">Konteyner</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">🔐</div>
+          <div class="tech-name">JWT</div>
+          <div class="tech-role">Auth</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">⚡</div>
+          <div class="tech-name">WebSocket</div>
+          <div class="tech-role">Gerçek Zamanlı</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">🏗️</div>
+          <div class="tech-name">SQLAlchemy</div>
+          <div class="tech-role">Async ORM</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">🧪</div>
+          <div class="tech-name">Vitest + MSW</div>
+          <div class="tech-role">Web Testleri</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">🎯</div>
+          <div class="tech-name">flutter_test</div>
+          <div class="tech-role">Mobil Testleri</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- STATS -->
+  <section>
+    <div class="container">
+      <div class="section-label">Proje İstatistikleri</div>
+      <h2 class="section-title">Rakamlarla<br/>WorkSafe AI</h2>
+
+      <div class="stats-grid reveal">
+        <div class="stat-card">
+          <div class="s-val">~92</div>
+          <div class="s-label">Git Commit</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-val">4K+</div>
+          <div class="s-label">Backend (Python) Satır</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-val">5.4K</div>
+          <div class="s-label">Frontend (JS/JSX) Satır</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-val">5.1K</div>
+          <div class="s-label">Flutter (Dart) Satır</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-val">35+</div>
+          <div class="s-label">API Endpoint</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-val">44</div>
+          <div class="s-label">Web Testi</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-val">49</div>
+          <div class="s-label">Flutter Testi</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-val">93</div>
+          <div class="s-label">Toplam Test</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="section-label">Başlayın</div>
+      <h2>Sahayı Güvende Tutmaya<br/>Hazır mısınız?</h2>
+      <p>Yönetim paneline giriş yaparak kameralarınızı ekleyin, ihlalleri takip edin ve raporlarınızı oluşturun.</p>
+      <a href="https://work-safety-backend.vercel.app/" target="_blank" rel="noopener" class="btn-primary" style="font-size:1.05rem; padding:15px 36px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 3h6v6"/><path d="M10 14 21 3"/>
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+        </svg>
+        Konsola Git
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>
+      <strong>WorkSafe AI</strong> — İş Güvenliği İhlal Tespit Sistemi
+      &nbsp;·&nbsp;
+      <strong>İbrahim Binbuğa</strong>
+      &nbsp;·&nbsp;
+      Bitirme Projesi, Mayıs 2026
+    </p>
+    <p style="margin-top:6px; font-size:0.77rem;">
+      FastAPI · React 19 · Flutter · YOLOv8 · PostgreSQL · Firebase
+    </p>
+  </footer>
+
+  <script>
+    // Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
