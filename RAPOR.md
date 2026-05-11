@@ -1,9 +1,9 @@
 # SafetyWatch AI — İş Güvenliği İhlal Tespit Sistemi
 ## Bitirme Projesi Teknik Raporu
 
-**Öğrenci:** İbrahim Binbuğa  
+**Öğrenci:** İbrahim Binbuğa, Fethiye Sarı, Derya Atasoy  
 **Tarih:** Mayıs 2026  
-**Konu:** YOLOv8 tabanlı gerçek zamanlı kişisel koruyucu ekipman ve düşme tespiti sistemi  
+**Konu:** YOLOv11 tabanlı gerçek zamanlı kişisel koruyucu ekipman ve düşme tespiti sistemi  
 **Canlı Demo:** https://work-safety-backend.vercel.app/
 
 ---
