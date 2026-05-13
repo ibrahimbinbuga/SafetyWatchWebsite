@@ -1491,22 +1491,37 @@ footer {
   letter-spacing: 0.04em;
 }
 
-.team-gh {
+.team-social {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: auto;
+}
+
+.team-social-link {
   display: flex;
   align-items: center;
   gap: var(--space-2);
   font-family: var(--font-mono);
   font-size: var(--text-caption);
   color: var(--text-muted);
+  text-decoration: none;
   transition: color var(--duration-fast);
-  margin-top: auto;
 }
 
-.team-card:hover .team-gh {
+.team-social-link:hover {
   color: var(--text-secondary);
 }
 
-.team-gh svg {
+.team-social-link--linkedin:hover {
+  color: #0a66c2;
+}
+
+.team-social-link--cv:hover {
+  color: var(--accent);
+}
+
+.team-social-link svg {
   width: 14px;
   height: 14px;
   flex-shrink: 0;
