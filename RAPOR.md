@@ -800,5 +800,3 @@ Flutter ile iOS (`flutter build ios`) ve Android (`flutter build apk / appbundle
 | Düşük | Kamera başına anlık FPS ve model latency metrikleri |
 
 ---
-
-*Bu rapor Claude Code (Anthropic) yardımıyla hazırlanmıştır.*
